@@ -223,39 +223,81 @@ rect_next_row:
     	b.lt rect_loop_y
 rect_exit:
 
+//-------------------- Cartel -------------------
+// Palo izquierdo
+mov x2, #120      // x
+mov x3, #200      // y
+mov x4, #20       // ancho
+mov x5, #120      // alto
+movz x6, 0x52, lsl 16
+movk x6, 0x5252, lsl 0     // color marrón
+bl draw_rectangle
+
+// Palo derecho
+mov x2, #500     // x
+mov x3, #200      // y
+mov x4, #20       // ancho
+mov x5, #120      // alto
+movz x6, 0x52, lsl 16
+movk x6, 0x5252, lsl 0     // mismo color marrón
+bl draw_rectangle
+
+// Cartel (parte horizontal superior)
+mov x2, #80       // x
+mov x3, #110       // y
+mov x4, #480      // ancho
+mov x5, #100      // alto
+movz x6, 0xd4, lsl 16
+movk x6, 0xc68e, lsl 0     // color blanco
+bl draw_rectangle
+
 //------------------ PARTE 5: Letra O -------------------------------
-// Parte superior 
-mov x2, #5         // x actual
-mov x3, #0         // y actual
-mov x4, #20        // ancho
-mov x5, #5         // alto
-movz x6, 0xFF, lsl 16
-movk x6, 0xFFFF, lsl 0
-bl draw_rectangle
 
-// Parte inferior
-mov x2, #5         // x actual
-mov x3, #40        // y actual
-mov x4, #20        // ancho
-mov x5, #5         // alto
-movz x6, 0xFF, lsl 16
-movk x6, 0xFFFF, lsl 0
-bl draw_rectangle
+mov x2, #50
+mov x3, #50
 
-// Lateral izquierdo
-mov x2, #0         // x actual
-mov x3, #5         // y actual
-mov x4, #5         // ancho
-mov x5, #35        // alto
-bl draw_rectangle
+// { PRE: en x2 el valor x inicial, en x3 el valor y inicial }
+draw_O:
+    mov x27, x2
+    mov x28, x3
+    
+    // Parte superior 
+    add x2, x2, #5         // x actual
+    add x3, x3, #0         // y actual
+    mov x4, #20        // ancho
+    mov x5, #5         // alto
+    movz x6, 0xFF, lsl 16
+    movk x6, 0xFFFF, lsl 0
+    bl draw_rectangle
 
-// Lateral derecho
-mov x2, #25        // x actual
-mov x3, #5         // y actual
-mov x4, #5         // ancho
-mov x5, #35        // alto
-bl draw_rectangle
+    // Parte inferior
+    mov x2, x27
+    mov x3, x28
+    add x2, x2, #5         // x actual
+    add x3, x3, #40        // y actual
+    mov x4, #20        // ancho
+    mov x5, #5         // alto
+    movz x6, 0xFF, lsl 16
+    movk x6, 0xFFFF, lsl 0
+    bl draw_rectangle
 
+    // Lateral izquierdo
+    mov x2, x27
+    mov x3, x28
+    add x2, x2, #0         // x actual
+    add x3, x3, #5         // y actual
+    mov x4, #5         // ancho
+    mov x5, #35        // alto
+    bl draw_rectangle
+
+    // Lateral derecho
+    mov x2, x27
+    mov x3, x28
+    add x2, x2, #25        // x actual
+    add x3, x3, #5         // y actual
+    mov x4, #5         // ancho
+    mov x5, #35        // alto
+    bl draw_rectangle
 
 //------------------ Letra d ----------------------------------------
 // Parte superior 
@@ -480,7 +522,6 @@ mov x3, #40
 mov x4, #20
 mov x5, #5
 bl draw_rectangle
-
 // ---------------------- draw_rectangle ----------------------------
 draw_rectangle:
     mov x7, #0              // fila local
@@ -506,7 +547,9 @@ next_row:
     b.lt draw_rect_loop_y
     ret
 
-	// -------------------------------------------------------------------
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
 	// Ejemplo de uso de gpios
 	mov x9, GPIO_BASE
 
