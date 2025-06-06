@@ -13,8 +13,9 @@ main:
  	mov x20, x0	// Guarda la dirección base del framebuffer en x20
 	//---------------- CODE HERE ------------------------------------
 	
-	//FONDO 1
-
+	// --------------------------------------------------------------
+	//-----------------FONDO 1---------------------------------------
+	// --------------------------------------------------------------
 	movz x10, 0xAD, lsl 16
 	movk x10, 0xD8E6, lsl 00
 
@@ -28,17 +29,16 @@ loop0:
 	cbnz x1,loop0  // Si no terminó la fila, salto
 	sub x2,x2,1	   // Decrementar contador Y
 	cbnz x2,loop1  // Si no es la última fila, salto
-	
-	// ---------------------------------------------------
+	// --------------------------------------------------------------
 	// DELAY EJERCICIO 7 TP 8
 	movz x7, 0x1, lsl 0 //SI 48 32 16
 	lsl x7,x7, 27
 L1: 	sub x7, x7, 1 // No existe subi asi que modificamos a sub
 	cbnz x7, L1
 
-
-	// ---------------------------------------------------------
-	// FONDO 2
+	// --------------------------------------------------------------
+	//-----------------FONDO 2---------------------------------------
+	// --------------------------------------------------------------
 
 	// Reusamos el registro x10 para cambiarle el color
 	movz x10, 0x99, lsl 16
@@ -66,7 +66,9 @@ tierra_loop:
 	sub x1,x1,1 //Restamos contador
 	cbnz x1,tierra_loop // Si x1 es distinto de 0 vuelve
 
-	// ----------------- Parte 3: TRIÁNGULO ASFALTO -----------------
+	// --------------------------------------------------------------
+	//---------------- TRIÁNGULO ASFALTO-----------------------------
+	// --------------------------------------------------------------
 	// Color gris oscuro: 0xFF444444
 	movz x10, 0x44, lsl 16
 	movk x10, 0x4444, lsl 0
@@ -82,9 +84,8 @@ tierra_loop:
 	lsl x7,x7, 27
 L2: 	sub x7, x7, 1 // No existe subi asi que modificamos a sub
 	cbnz x7, L2
-
-
 	// ---------------------------------------------------------
+	
 triangulo_loop_y:
 	sub x6, x5, x16          // x6 = y - 240
 
@@ -125,11 +126,12 @@ end_linea_triangulo:
 	lsl x7,x7, 27
 L3: 	sub x7, x7, 1 // No existe subi asi que modificamos a sub
 	cbnz x7, L3
-
-
 	// ---------------------------------------------------------
 
-	// ----------------- Parte 4: TRIÁNGULO AMARILLO (linea asfalto) ----
+
+	// --------------------------------------------------------------
+	//--------TRIÁNGULOS AMARILLOS (linea asfalto)-------------------
+	// --------------------------------------------------------------
 	// Color amarillo: 0xFFFFFF00
 	movz x10, 0xFF, lsl 16      // Parte alta → FF0000
 	movk x10, 0xCC33, lsl 0     // Parte baja → +CC33 = FFFFCC33
@@ -137,7 +139,7 @@ L3: 	sub x7, x7, 1 // No existe subi asi que modificamos a sub
 	mov x5, 240              // y desde 240 a 479
 	mov x16, 240             // constante 240
 	mov x17, SCREEN_WIDTH    // 640
-	mov x19, 5               // ancho base del triángulo (muy angosto)
+	mov x19, 5               // ancho base del triángulo 
 
 triangulo_amarillo_loop_y:
 	sub x6, x5, x16          // x6 = y - 240
@@ -173,11 +175,11 @@ end_linea_amarilla:
 	lsl x7,x7, 27
 L5: 	sub x7, x7, 1 // No existe subi asi que modificamos a sub
 	cbnz x7, L5
-
-
 	// ---------------------------------------------------------
 
-	//----------------------RECTANGULOS PARA SIMULAR LINEA PUNTEADA------------
+	// --------------------------------------------------------------
+	//--------RECTANGULOS PARA SIMULAR LINEA PUNTEADA----------------
+	// --------------------------------------------------------------
 	// Color gris oscuro en x15
 	movz x15, 0x44, lsl 16
 	movk x15, 0x4444, lsl 0
@@ -222,28 +224,104 @@ rect_next_row:
     	cmp x3, x2
     	b.lt rect_loop_y
 rect_exit:
-	// -------------------------------------------------------------------
-	// Ejemplo de uso de gpios
-	mov x9, GPIO_BASE
 
-	// Atención: se utilizan registros w porque la documentación de broadcom
-	// indica que los registros que estamos leyendo y escribiendo son de 32 bits
-
-	// Setea gpios 0 - 9 como lectura
-	str wzr, [x9, GPIO_GPFSEL0]
-
-	// Lee el estado de los GPIO 0 - 31
-	ldr w10, [x9, GPIO_GPLEV0]
-
-	// And bit a bit mantiene el resultado del bit 2 en w10
-	and w11, w10, 0b10
-
-	// w11 será 1 si había un 1 en la posición 2 de w10, si no será 0
-	// efectivamente, su valor representará si GPIO 2 está activo
-	lsr w11, w11, 1
+	// --------------------------------------------------------------
+	//----------------------CACTUS-----------------------------------
+	// --------------------------------------------------------------
 	
+	// ----------------- Cactus izquierdo -----------------
 
-	//---------------------------------------------------------------
+movz x10, 0x22, lsl 16
+movk x10, 0x8B22, lsl 0       // Verde oscuro
+
+mov x0, x20                  // framebuffer base
+mov x1, SCREEN_WIDTH
+mov x2, SCREEN_HEIGH
+
+mov x3, 280                  // y inicial
+mov x4, 40                   // alto cactus
+mov x5, 10                   // ancho cactus
+mov x6, 50                  // x inicial (izquierda)
+
+cactus_loop_y_izq:
+    mov x7, 0                // fila local
+
+cactus_fill_y_izq:
+    add x8, x3, x7
+    cmp x8, x2
+    b.ge cactus_done_izq
+
+    mul x9, x8, x1
+    add x9, x9, x6
+    lsl x9, x9, 2
+    add x11, x20, x9
+
+    mov x12, 0
+cactus_fill_x_izq:
+    cmp x12, x5
+    b.ge next_cactus_row_izq
+    stur w10, [x11]
+    add x11, x11, 4
+    add x12, x12, 1
+    b cactus_fill_x_izq
+
+next_cactus_row_izq:
+    add x7, x7, 1
+    cmp x7, x4
+    b.lt cactus_fill_y_izq
+
+cactus_done_izq:
+
+// ----------------- Cactus derecho -----------------
+
+mov x3, 380          // y
+mov x6, 580          // x derecha (a la derecha del camino)
+
+cactus_loop_y_der:
+    mov x7, 0
+
+cactus_fill_y_der:
+    add x8, x3, x7
+    cmp x8, x2
+    b.ge cactus_done_der
+
+    mul x9, x8, x1
+    add x9, x9, x6
+    lsl x9, x9, 2
+    add x11, x20, x9
+
+    mov x12, 0
+cactus_fill_x_der:
+    cmp x12, x5
+    b.ge next_cactus_row_der
+    stur w10, [x11]
+    add x11, x11, 4
+    add x12, x12, 1
+    b cactus_fill_x_der
+
+next_cactus_row_der:
+    add x7, x7, 1
+    cmp x7, x4
+    b.lt cactus_fill_y_der
+
+cactus_done_der:
+
+
+
+
+	// -------------------------------------------------------------------
+	// ----------------- Ejemplo de uso de GPIO --------------------------
+	// Atención: se utilizan registros w porque la documentación de broadcom
+	//           indica que los registros que estamos leyendo y escribiendo son de 32 bits
+
+	mov x9, GPIO_BASE
+	str wzr, [x9, GPIO_GPFSEL0]   // GPIOS 0-9 como entrada
+	ldr w10, [x9, GPIO_GPLEV0]    // Leer GPIO 0-31
+	and w11, w10, 0b10            // Extraer bit 1
+	lsr w11, w11, 1				  // w11 será 1 si había un 1 en la posición 2 de w10, si no será 0
+                                  // efectivamente, su valor representará si GPIO 2 está activo
+	
+	//-------------------------------------------------------------------
 	// Infinite Loop
 
 InfLoop:
