@@ -41,8 +41,8 @@ L1: 	sub x7, x7, 1 // No existe subi asi que modificamos a sub
 	// --------------------------------------------------------------
 
 	// Reusamos el registro x10 para cambiarle el color
-	movz x10, 0x99, lsl 16
-	movk x10, 0x4C00, lsl 00
+	movz x10, 0x11, lsl 16
+	movk x10, 0x9111, lsl 00
 	mov x0,x20
 
 	// Creamos Direccion
@@ -224,6 +224,336 @@ rect_next_row:
     	cmp x3, x2
     	b.lt rect_loop_y
 rect_exit:
+
+//-------------------- Cartel -------------------
+// Palo izquierdo
+mov x2, #120      // x
+mov x3, #200      // y
+mov x4, #20       // ancho
+mov x5, #120      // alto
+movz x6, 0x52, lsl 16
+movk x6, 0x5252, lsl 0     // color marrón
+bl draw_rectangle
+
+// Palo derecho
+mov x2, #500     // x
+mov x3, #200      // y
+mov x4, #20       // ancho
+mov x5, #120      // alto
+movz x6, 0x52, lsl 16
+movk x6, 0x5252, lsl 0     // mismo color marrón
+bl draw_rectangle
+
+// Cartel (parte horizontal superior)
+mov x2, #80       // x
+mov x3, #110       // y
+mov x4, #480      // ancho
+mov x5, #100      // alto
+movz x6, 0xd4, lsl 16
+movk x6, 0xc68e, lsl 0     // color blanco
+bl draw_rectangle
+
+//------------------ PARTE 5: Letra O -------------------------------
+
+mov x2, #50
+mov x3, #50
+
+// { PRE: en x2 el valor x inicial, en x3 el valor y inicial }
+draw_O:
+    mov x27, x2
+    mov x28, x3
+    
+    // Parte superior 
+    add x2, x2, #5         // x actual
+    add x3, x3, #0         // y actual
+    mov x4, #20        // ancho
+    mov x5, #5         // alto
+    movz x6, 0xFF, lsl 16
+    movk x6, 0xFFFF, lsl 0
+    bl draw_rectangle
+
+    // Parte inferior
+    mov x2, x27
+    mov x3, x28
+    add x2, x2, #5         // x actual
+    add x3, x3, #40        // y actual
+    mov x4, #20        // ancho
+    mov x5, #5         // alto
+    movz x6, 0xFF, lsl 16
+    movk x6, 0xFFFF, lsl 0
+    bl draw_rectangle
+
+    // Lateral izquierdo
+    mov x2, x27
+    mov x3, x28
+    add x2, x2, #0         // x actual
+    add x3, x3, #5         // y actual
+    mov x4, #5         // ancho
+    mov x5, #35        // alto
+    bl draw_rectangle
+
+    // Lateral derecho
+    mov x2, x27
+    mov x3, x28
+    add x2, x2, #25        // x actual
+    add x3, x3, #5         // y actual
+    mov x4, #5         // ancho
+    mov x5, #35        // alto
+    bl draw_rectangle
+
+//------------------ Letra d ----------------------------------------
+// Parte superior 
+mov x2, #40         // x actual
+mov x3, #20         // y actual
+mov x4, #20        // ancho
+mov x5, #4         // alto
+movz x6, 0xFF, lsl 16
+movk x6, 0xFFFF, lsl 0
+bl draw_rectangle
+
+// Parte inferior
+mov x2, #40         // x actual
+mov x3, #40			// y actual
+mov x4, #16         // ancho
+mov x5, #4          // alto
+bl draw_rectangle
+
+// Lateral izquierdo
+mov x2, #36         // x actual
+mov x3, #24         // y actual
+mov x4, #4          // ancho
+mov x5, #16         // alto
+bl draw_rectangle
+
+// Lateral derecho
+mov x2, #56         // x actual
+mov x3, #2          // y actual
+mov x4, #4          // ancho
+mov x5, #40         // alto
+bl draw_rectangle
+
+//------------------ Letra C ----------------------------------------
+// Parte superior 
+mov x2, #75        // x actual
+mov x3, #0          // y actual
+mov x4, #15         // ancho
+mov x5, #5          // alto
+movz x6, 0xFF, lsl 16
+movk x6, 0xFFFF, lsl 0
+bl draw_rectangle
+
+// Parte inferior
+mov x2, #75
+mov x3, #40
+mov x4, #15
+mov x5, #5
+bl draw_rectangle
+
+// Lateral izquierdo 1
+mov x2, #65
+mov x3, #10
+mov x4, #5
+mov x5, #25
+bl draw_rectangle
+
+// Lateral izquierdo 2a
+mov x2, #70
+mov x3, #5
+mov x4, #5
+mov x5, #5
+bl draw_rectangle
+// Lateral Derecho 3a
+mov x2, #90
+mov x3, #5
+mov x4, #5
+mov x5, #5
+bl draw_rectangle
+
+// Lateral izquierdo 2a
+mov x2, #70
+mov x3, #35
+mov x4, #5
+mov x5, #5
+bl draw_rectangle
+// Lateral derecho 3b
+mov x2, #90
+mov x3, #35
+mov x4, #5
+mov x5, #5
+bl draw_rectangle
+//------------------ Numero 2 ---------------------------------------
+// Parte superior 
+mov x2, #105         // x actual
+mov x3, #0         // y
+mov x4, #25        // ancho
+mov x5, #5         // alto
+movz x6, 0xFF, lsl 16
+movk x6, 0xFFFF, lsl 0
+bl draw_rectangle
+
+// Lateral derecho arriba
+mov x2, #125
+mov x3, #5
+mov x4, #5
+mov x5, #15
+bl draw_rectangle
+
+// Barra horizontal media
+mov x2, #105
+mov x3, #20
+mov x4, #20
+mov x5, #5
+bl draw_rectangle
+
+// Lateral izquierdo abajo
+mov x2, #100
+mov x3, #25
+mov x4, #5
+mov x5, #15
+bl draw_rectangle
+
+// Parte inferior
+mov x2, #100
+mov x3, #40
+mov x4, #30
+mov x5, #5
+bl draw_rectangle
+//------------------ Numero 0 ---------------------------------------
+// Parte superior 
+mov x2, #140       // x actual
+mov x3, #0         // y actual
+mov x4, #20        // ancho
+mov x5, #5         // alto
+movz x6, 0xFF, lsl 16
+movk x6, 0xFFFF, lsl 0
+bl draw_rectangle
+
+// Parte inferior
+mov x2, #140         // x actual
+mov x3, #40        // y actual
+mov x4, #20        // ancho
+mov x5, #5         // alto
+bl draw_rectangle
+
+// Lateral izquierdo
+mov x2, #135         // x actual
+mov x3, #0         // y actual
+mov x4, #5         // ancho
+mov x5, #45        // alto
+bl draw_rectangle
+
+// Lateral derecho
+mov x2, #160        // x actual
+mov x3, #0         // y actual
+mov x4, #5         // ancho
+mov x5, #45        // alto
+bl draw_rectangle
+
+
+//------------------ Numero 2 ---------------------------------------
+// Parte superior 
+mov x2, #175         // x actual
+mov x3, #0           // y
+mov x4, #25          // ancho
+mov x5, #5           // alto
+movz x6, 0xFF, lsl 16
+movk x6, 0xFFFF, lsl 0
+bl draw_rectangle
+
+// Lateral derecho arriba
+mov x2, #195         
+mov x3, #5
+mov x4, #5
+mov x5, #15
+bl draw_rectangle
+
+// Barra horizontal media
+mov x2, #175         
+mov x3, #20
+mov x4, #20
+mov x5, #5
+bl draw_rectangle
+
+// Lateral izquierdo abajo
+mov x2, #170         
+mov x3, #25
+mov x4, #5
+mov x5, #15
+bl draw_rectangle
+
+// Parte inferior
+mov x2, #170         
+mov x3, #40
+mov x4, #30
+mov x5, #5
+bl draw_rectangle
+//------------------ Numero 5 ---------------------------------------
+// Parte superior 
+mov x2, #205         // x actual 
+mov x3, #0           // y
+mov x4, #25          // ancho
+mov x5, #5           // alto
+movz x6, 0xFF, lsl 16
+movk x6, 0xFFFF, lsl 0
+bl draw_rectangle
+
+// Lateral izquierdo arriba
+mov x2, #205   
+mov x3, #5
+mov x4, #5
+mov x5, #10
+bl draw_rectangle
+
+// Barra horizontal media
+mov x2, #205
+mov x3, #15
+mov x4, #20
+mov x5, #5
+bl draw_rectangle
+
+// Lateral derecho abajo
+mov x2, #225         
+mov x3, #20
+mov x4, #5
+mov x5, #20
+bl draw_rectangle
+
+// Parte inferior
+mov x2, #205         
+mov x3, #40
+mov x4, #20
+mov x5, #5
+bl draw_rectangle
+// ---------------------- draw_rectangle ----------------------------
+draw_rectangle:
+    mov x7, #0              // fila local
+draw_rect_loop_y:
+    add x8, x3, x7          // y actual
+    mul x9, x8, x1          // y * SCREEN_WIDTH
+    add x9, x9, x2          // + x inicial
+    lsl x9, x9, #2          // * 4 bytes por píxel
+    add x10, x0, x9         // dirección base del píxel
+
+    mov x11, #0             // columna local
+draw_rect_loop_x:
+    cmp x11, x4
+    b.ge next_row
+    stur w6, [x10]
+    add x10, x10, #4
+    add x11, x11, #1
+    b draw_rect_loop_x
+
+next_row:
+    add x7, x7, #1
+    cmp x7, x5
+    b.lt draw_rect_loop_y
+    ret
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+	// Ejemplo de uso de gpios
+	mov x9, GPIO_BASE
 
 	// --------------------------------------------------------------
 	//----------------------CACTUS-----------------------------------
