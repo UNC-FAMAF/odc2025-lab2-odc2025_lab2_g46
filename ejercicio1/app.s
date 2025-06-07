@@ -31,8 +31,7 @@ loop0:
 	// DELAY EJERCICIO 7 TP 8
 	movz x7, 0x1, lsl 0 //SI 48 32 16
 	lsl x7,x7, 27
-L1: 	sub x7, x7, 1 // No existe subi asi que modificamos a sub
-	cbnz x7, L1
+	bl loop_delay
 
 //-----------------FONDO 2---------------------------------------
 	// Reusamos el registro x10 para cambiarle el color
@@ -72,14 +71,7 @@ tierra_loop:
 	mov x17, SCREEN_WIDTH    // 640
 	lsr x18, x17, 1          // 320 = SCREEN_WIDTH / 2
 
-	// ---------------------------------------------------
-	// DELAY EJERCICIO 7 TP 8
-	movz x7, 0x1, lsl 0 //SI 48 32 16
-	lsl x7,x7, 27
-L2: 	sub x7, x7, 1 // No existe subi asi que modificamos a sub
-	cbnz x7, L2
-	// ---------------------------------------------------------
-	
+
 triangulo_loop_y:
 	sub x6, x5, x16          // x6 = y - 240
 
@@ -159,11 +151,14 @@ end_linea_amarilla:
 	cmp x5, SCREEN_HEIGH
 	b.lt triangulo_amarillo_loop_y	
 
-// DELAY EJERCICIO 7 TP 8
+	// ---------------------------------------------------
+	// DELAY EJERCICIO 7 TP 8
 	movz x7, 0x1, lsl 0 //SI 48 32 16
 	lsl x7,x7, 27
-L5: 	sub x7, x7, 1 // No existe subi asi que modificamos a sub
-	cbnz x7, L5
+	
+	bl loop_delay
+
+	// ---------------------------------------------------------
 
 //--------RECTANGULOS PARA SIMULAR LINEA PUNTEADA----------------
 
@@ -211,6 +206,16 @@ rect_next_row:
     	cmp x3, x2
     	b.lt rect_loop_y
 rect_exit:
+
+// ---------------------------------------------------
+	// DELAY EJERCICIO 7 TP 8
+	movz x7, 0x1, lsl 0 //SI 48 32 16
+	lsl x7,x7, 27
+	
+	bl loop_delay
+
+// ---------------------------------------------------------
+
 
 // ----------------------------- nubes -------------------------------
 movz x6, 0xF0FF
@@ -263,6 +268,15 @@ delay:
     sub x7, x7, #1 // { PRE: x7 tiene el tiempo del delay }
     cbnz x7, delay
 
+	// ---------------------------------------------------
+	// DELAY EJERCICIO 7 TP 8
+	movz x7, 0x1, lsl 0 //SI 48 32 16
+	lsl x7,x7, 27
+	
+	bl loop_delay
+
+	// ---------------------------------------------------------
+
 //-------------------- Cartel -------------------
 // Palo izquierdo
 mov x2, #120      // x
@@ -300,6 +314,15 @@ mov x5, #100       // alto
 movz x6, 0xd4, lsl 16
 movk x6, 0xc68e, lsl 0     // color blanco roto
 bl draw_rectangle
+
+	// ---------------------------------------------------
+	// DELAY EJERCICIO 7 TP 8
+	movz x7, 0x1, lsl 0 //SI 48 32 16
+	lsl x7,x7, 27
+	
+	bl loop_delay
+
+	// ---------------------------------------------------------
 
 // ----------------- Árbol 1 ----------------------------------
 // Tronco marrón
@@ -387,6 +410,15 @@ mov x3, #135
 mov x4, #10
 mov x5, #6
 bl draw_rectangle
+
+	// ---------------------------------------------------
+	// DELAY EJERCICIO 7 TP 8
+	movz x7, 0x1, lsl 0 //SI 48 32 16
+	lsl x7,x7, 27
+	
+	bl loop_delay
+
+	// ---------------------------------------------------------
 
 //------------------ PARTE 5: Letra O -------------------------------
 mov x2, #130
