@@ -12,12 +12,10 @@ main:
 	// x0 contiene la direccion base del framebuffer
  	mov x20, x0	// Guarda la dirección base del framebuffer en x20
 	//---------------- CODE HERE ------------------------------------
-	
-	// --------------------------------------------------------------
-	//-----------------FONDO 1---------------------------------------
-	// --------------------------------------------------------------
-	movz x10, 0xAD, lsl 16
-	movk x10, 0xD8E6, lsl 00
+
+//-----------------FONDO 1-------------------------------------------
+	movz x10, 0xa1, lsl 16
+	movk x10, 0xd1ed, lsl 00
 
 	mov x2, SCREEN_HEIGH         // Y Size
 loop1:
@@ -36,10 +34,7 @@ loop0:
 L1: 	sub x7, x7, 1 // No existe subi asi que modificamos a sub
 	cbnz x7, L1
 
-	// --------------------------------------------------------------
-	//-----------------FONDO 2---------------------------------------
-	// --------------------------------------------------------------
-
+//-----------------FONDO 2---------------------------------------
 	// Reusamos el registro x10 para cambiarle el color
 	movz x10, 0x11, lsl 16
 	movk x10, 0x9111, lsl 00
@@ -66,9 +61,8 @@ tierra_loop:
 	sub x1,x1,1 //Restamos contador
 	cbnz x1,tierra_loop // Si x1 es distinto de 0 vuelve
 
-	// --------------------------------------------------------------
-	//---------------- TRIÁNGULO ASFALTO-----------------------------
-	// --------------------------------------------------------------
+
+//---------------- TRIÁNGULO ASFALTO-----------------------------
 	// Color gris oscuro: 0xFF444444
 	movz x10, 0x44, lsl 16
 	movk x10, 0x4444, lsl 0
@@ -120,18 +114,14 @@ end_linea_triangulo:
 	cmp x5, SCREEN_HEIGH
 	b.lt triangulo_loop_y
 
-	// ---------------------------------------------------
 	// DELAY EJERCICIO 7 TP 8
 	movz x7, 0x1, lsl 0 //SI 48 32 16
 	lsl x7,x7, 27
 L3: 	sub x7, x7, 1 // No existe subi asi que modificamos a sub
 	cbnz x7, L3
-	// ---------------------------------------------------------
 
+//--------TRIÁNGULOS AMARILLOS (linea asfalto)-------------------
 
-	// --------------------------------------------------------------
-	//--------TRIÁNGULOS AMARILLOS (linea asfalto)-------------------
-	// --------------------------------------------------------------
 	// Color amarillo: 0xFFFFFF00
 	movz x10, 0xFF, lsl 16      // Parte alta → FF0000
 	movk x10, 0xCC33, lsl 0     // Parte baja → +CC33 = FFFFCC33
@@ -169,17 +159,14 @@ end_linea_amarilla:
 	cmp x5, SCREEN_HEIGH
 	b.lt triangulo_amarillo_loop_y	
 
-	// ---------------------------------------------------
-	// DELAY EJERCICIO 7 TP 8
+// DELAY EJERCICIO 7 TP 8
 	movz x7, 0x1, lsl 0 //SI 48 32 16
 	lsl x7,x7, 27
 L5: 	sub x7, x7, 1 // No existe subi asi que modificamos a sub
 	cbnz x7, L5
-	// ---------------------------------------------------------
 
-	// --------------------------------------------------------------
-	//--------RECTANGULOS PARA SIMULAR LINEA PUNTEADA----------------
-	// --------------------------------------------------------------
+//--------RECTANGULOS PARA SIMULAR LINEA PUNTEADA----------------
+
 	// Color gris oscuro en x15
 	movz x15, 0x44, lsl 16
 	movk x15, 0x4444, lsl 0
@@ -225,14 +212,65 @@ rect_next_row:
     	b.lt rect_loop_y
 rect_exit:
 
+// ----------------------------- nubes -------------------------------
+movz x6, 0xF0FF
+movk x6, 0xF0, lsl 16
+
+mov x2, #560
+mov x3, #10
+mov x4, #80
+mov x5, #50
+
+b draw_cloud
+draw_cloud:
+    bl draw_rectangle
+
+b move_cloud_x
+move_cloud_x:
+    movz x7, 0x1
+    lsl x7, x7, 23
+    bl delay
+    
+    movz x6, 0xD8E6
+    movk x6, 0xAD, lsl 16
+    bl draw_cloud               // borra la existente
+    
+    add x2, x2, #1
+    movz x6, 0xF0FF
+    movk x6, 0xF0, lsl 16
+    bl draw_cloud               // crea la nueva en posición
+    
+    bl move_cloud_y
+    b move_cloud_x
+
+move_cloud_y:
+    lsl x29, x2, 60
+    cbnz x29, shift_y
+
+shift_y:
+    lsr x29, x2, 4
+    lsl x29, x29, 59
+    cbnz x29, shift_y_up
+    cbz x29, shift_y_down
+
+shift_y_up:
+    add x3, x3, #1
+
+shift_y_down:
+    sub x3, x3, #1
+
+delay:
+    sub x7, x7, #1 // { PRE: x7 tiene el tiempo del delay }
+    cbnz x7, delay
+
 //-------------------- Cartel -------------------
 // Palo izquierdo
 mov x2, #120      // x
 mov x3, #200      // y
 mov x4, #20       // ancho
 mov x5, #120      // alto
-movz x6, 0x52, lsl 16
-movk x6, 0x5252, lsl 0     // color marrón
+movz x6, 0x2a, lsl 16
+movk x6, 0x2b2a, lsl 0 
 bl draw_rectangle
 
 // Palo derecho
@@ -240,23 +278,119 @@ mov x2, #500     // x
 mov x3, #200      // y
 mov x4, #20       // ancho
 mov x5, #120      // alto
-movz x6, 0x52, lsl 16
-movk x6, 0x5252, lsl 0     // mismo color marrón
+movz x6, 0x2a, lsl 16
+movk x6, 0x2b2a, lsl 0     
 bl draw_rectangle
 
 // Cartel (parte horizontal superior)
-mov x2, #80       // x
+// Borde marrón
+mov x2, #72        // x borde = 80 - 8
+mov x3, #102       // y borde = 110 - 8
+mov x4, #496       // ancho borde = 480 + 28
+mov x5, #116       // alto borde = 100 + 28
+movz x6, 0x8B, lsl 16
+movk x6, 0x4513, lsl 0
+bl draw_rectangle
+
+// Cartel blanco
+mov x2, #80        // x
 mov x3, #110       // y
-mov x4, #480      // ancho
-mov x5, #100      // alto
+mov x4, #480       // ancho
+mov x5, #100       // alto
 movz x6, 0xd4, lsl 16
-movk x6, 0xc68e, lsl 0     // color blanco
+movk x6, 0xc68e, lsl 0     // color blanco roto
+bl draw_rectangle
+
+// ----------------- Árbol 1 ----------------------------------
+// Tronco marrón
+mov x2, #40          // x corregido
+mov x3, #300         // y
+mov x4, #15          // ancho
+mov x5, #60          // alto
+movz x6, 0x2e, lsl 16
+movk x6, 0x1611, lsl 0
+bl draw_rectangle
+
+mov x2, #40          // x corregido
+mov x3, #300         // y
+mov x4, #5          // ancho
+mov x5, #60          // alto
+movz x6, 0x4d, lsl 16
+movk x6, 0x271c, lsl 0
+bl draw_rectangle
+
+// Copa verde parte alta
+mov x2, #27
+mov x3, #210
+mov x4, #30
+mov x5, #20
+movz x6, 0x09, lsl 16
+movk x6, 0x7d12, lsl 0
+bl draw_rectangle
+
+// Copa verde parte baja
+mov x2, #27
+mov x3, #300
+mov x4, #40
+mov x5, #20
+movz x6, 0x05, lsl 16
+movk x6, 0x5c18, lsl 0
+bl draw_rectangle
+
+// Copa verde parte media alta
+mov x2, #20
+mov x3, #220
+mov x4, #50
+mov x5, #70
+movz x6, 0x04, lsl 16
+movk x6, 0x701c, lsl 0
+bl draw_rectangle
+
+// Copa verde parte media baja
+mov x2, #15
+mov x3, #270
+mov x4, #60
+mov x5, #40
+movz x6, 0x04, lsl 16
+movk x6, 0x701c, lsl 0
+bl draw_rectangle
+
+// ----------------- Flecha blanca hacia arriba -----------------
+// Color blanco
+movz x6, 0xFF, lsl 16
+movk x6, 0xFFFF, lsl 0     // 0xFFFFFFFF blanco
+
+// Cuerpo vertical
+mov x2, #260
+mov x3, #150
+mov x4, #10
+mov x5, #40
+bl draw_rectangle
+
+// Punta base (más ancha)
+mov x2, #250     // x
+mov x3, #145     // y
+mov x4, #30      // ancho
+mov x5, #6       // alto
+bl draw_rectangle
+
+// Punta intermedia
+mov x2, #255
+mov x3, #140
+mov x4, #20
+mov x5, #5
+bl draw_rectangle
+
+// Punta superior
+mov x2, #260
+mov x3, #135
+mov x4, #10
+mov x5, #6
 bl draw_rectangle
 
 //------------------ PARTE 5: Letra O -------------------------------
-
-mov x2, #50
-mov x3, #50
+mov x2, #130
+mov x3, #140
 
 // { PRE: en x2 el valor x inicial, en x3 el valor y inicial }
 draw_O:
@@ -269,7 +403,7 @@ draw_O:
     mov x4, #20        // ancho
     mov x5, #5         // alto
     movz x6, 0xFF, lsl 16
-    movk x6, 0xFFFF, lsl 0
+	movk x6, 0xFFFF, lsl 0
     bl draw_rectangle
 
     // Parte inferior
@@ -279,8 +413,6 @@ draw_O:
     add x3, x3, #40        // y actual
     mov x4, #20        // ancho
     mov x5, #5         // alto
-    movz x6, 0xFF, lsl 16
-    movk x6, 0xFFFF, lsl 0
     bl draw_rectangle
 
     // Lateral izquierdo
@@ -302,227 +434,356 @@ draw_O:
     bl draw_rectangle
 
 //------------------ Letra d ----------------------------------------
-// Parte superior 
-mov x2, #40         // x actual
-mov x3, #20         // y actual
-mov x4, #20        // ancho
-mov x5, #4         // alto
-movz x6, 0xFF, lsl 16
-movk x6, 0xFFFF, lsl 0
-bl draw_rectangle
+mov x2, #130
+mov x3, #140
 
-// Parte inferior
-mov x2, #40         // x actual
-mov x3, #40			// y actual
-mov x4, #16         // ancho
-mov x5, #4          // alto
-bl draw_rectangle
+draw_1:
+    mov x27, x2
+    mov x28, x3
+	
+	//Parte superior
+    add x2, x2, #40         // x actual
+    add x3, x3, #20         // y actual
+	mov x4, #20        // ancho
+	mov x5, #4         // alto
+	mov x6, 0xFFFFFF
+	bl draw_rectangle
 
-// Lateral izquierdo
-mov x2, #36         // x actual
-mov x3, #24         // y actual
-mov x4, #4          // ancho
-mov x5, #16         // alto
-bl draw_rectangle
+	// Parte inferior
+	mov x2, x27         
+	mov x3, x28			
+	add x2, x2, #40     // x actual
+	add x3, x3, #40     // y actual
+	mov x4, #16         // ancho
+	mov x5, #4          // alto
+	bl draw_rectangle
 
-// Lateral derecho
-mov x2, #56         // x actual
-mov x3, #2          // y actual
-mov x4, #4          // ancho
-mov x5, #40         // alto
-bl draw_rectangle
+	// Lateral izquierdo
+	mov x2, x27         
+	mov x3, x28     
+	add x2, x2, #36     // x actual
+	add x3, x3, #24     // y actual    
+	mov x4, #4          // ancho
+	mov x5, #16         // alto
+	bl draw_rectangle
+
+	// Lateral derecho
+	mov x2, x27         // x actual
+	mov x3, x28          // y actual
+	add x2, x2, #56
+	add x3, x3, #2
+	mov x4, #4          // ancho
+	mov x5, #40         // alto
+	bl draw_rectangle
 
 //------------------ Letra C ----------------------------------------
+mov x2, #130
+mov x3, #140
+
+draw_2:
+	mov x27, x2
+	mov x28, x3
+
 // Parte superior 
-mov x2, #75        // x actual
-mov x3, #0          // y actual
-mov x4, #15         // ancho
-mov x5, #5          // alto
-movz x6, 0xFF, lsl 16
-movk x6, 0xFFFF, lsl 0
-bl draw_rectangle
+    add x2, x2, #75         // x actual
+    add x3, x3, #0         // y actual
+	mov x4, #15         // ancho
+	mov x5, #5          // alto
+	mov x6, 0xFFFFFF
+	bl draw_rectangle
 
-// Parte inferior
-mov x2, #75
-mov x3, #40
-mov x4, #15
-mov x5, #5
-bl draw_rectangle
+	// Parte inferior
+	mov x2, x27
+	mov x3, x28
+	add x2, x2, #75
+	add x3, x3, #40
+	mov x4, #15
+	mov x5, #5
+	bl draw_rectangle
 
-// Lateral izquierdo 1
-mov x2, #65
-mov x3, #10
-mov x4, #5
-mov x5, #25
-bl draw_rectangle
+	// Lateral izquierdo 1
+	mov x2, x27
+	mov x3, x28
+	add x2, x2, #65
+	add x3, x3, #10
+	mov x4, #5
+	mov x5, #25
+	bl draw_rectangle
 
-// Lateral izquierdo 2a
-mov x2, #70
-mov x3, #5
-mov x4, #5
-mov x5, #5
-bl draw_rectangle
-// Lateral Derecho 3a
-mov x2, #90
-mov x3, #5
-mov x4, #5
-mov x5, #5
-bl draw_rectangle
+	// Lateral izquierdo 2a
+	mov x2, x27
+	mov x3, x28
+	add x2, x2, #70
+	add x3, x3, #5
+	mov x4, #5
+	mov x5, #5
+	bl draw_rectangle
 
-// Lateral izquierdo 2a
-mov x2, #70
-mov x3, #35
-mov x4, #5
-mov x5, #5
-bl draw_rectangle
-// Lateral derecho 3b
-mov x2, #90
-mov x3, #35
-mov x4, #5
-mov x5, #5
-bl draw_rectangle
+	// Lateral Derecho 3a
+	mov x2, x27
+	mov x3, x28
+	add x2, x2, #90
+	add x3, x3, #5
+	mov x4, #5
+	mov x5, #5
+	bl draw_rectangle
+
+	// Lateral izquierdo 2a
+	mov x2, x27
+	mov x3, x28
+	add x2, x2, #70
+	add x3, x3, #35
+	mov x4, #5
+	mov x5, #5
+	bl draw_rectangle
+
+	// Lateral derecho 3b
+	mov x2, x27
+	mov x3, x28
+	add x2, x2, #90
+	add x3, x3, #35
+	mov x4, #5
+	mov x5, #5
+	bl draw_rectangle
 //------------------ Numero 2 ---------------------------------------
-// Parte superior 
-mov x2, #105         // x actual
-mov x3, #0         // y
-mov x4, #25        // ancho
-mov x5, #5         // alto
-movz x6, 0xFF, lsl 16
-movk x6, 0xFFFF, lsl 0
-bl draw_rectangle
+mov x2, #260
+mov x3, #140
+
+draw_3:
+	mov x27, x2
+	mov x28, x3
+
+// Parte superior
+	add x2, x2, #105         // x actual
+    add x3, x3, #0         // y actual
+	mov x4, #25        // ancho
+	mov x5, #5         // alto
+	movz x6, 0xFF, lsl 16
+	movk x6, 0xFFFF, lsl 0
+	bl draw_rectangle
 
 // Lateral derecho arriba
-mov x2, #125
-mov x3, #5
-mov x4, #5
-mov x5, #15
-bl draw_rectangle
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #125         // x actual
+    add x3, x3, #5         // y actual
+	mov x4, #5
+	mov x5, #15
+	bl draw_rectangle
 
 // Barra horizontal media
-mov x2, #105
-mov x3, #20
-mov x4, #20
-mov x5, #5
-bl draw_rectangle
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #105         // x actual
+    add x3, x3, #20         // y actual
+	mov x4, #20
+	mov x5, #5
+	bl draw_rectangle
 
 // Lateral izquierdo abajo
-mov x2, #100
-mov x3, #25
-mov x4, #5
-mov x5, #15
-bl draw_rectangle
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #100         // x actual
+    add x3, x3, #25         // y actual	
+	mov x4, #5
+	mov x5, #15
+	bl draw_rectangle
 
 // Parte inferior
-mov x2, #100
-mov x3, #40
-mov x4, #30
-mov x5, #5
-bl draw_rectangle
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #100         // x actual
+    add x3, x3, #40         // y actual
+	mov x4, #30
+	mov x5, #5
+	bl draw_rectangle
 //------------------ Numero 0 ---------------------------------------
+mov x2, #260
+mov x3, #140
+
+draw_4:
+	mov x27, x2
+	mov x28, x3
+
 // Parte superior 
-mov x2, #140       // x actual
-mov x3, #0         // y actual
-mov x4, #20        // ancho
-mov x5, #5         // alto
-movz x6, 0xFF, lsl 16
-movk x6, 0xFFFF, lsl 0
-bl draw_rectangle
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #140         // x actual
+    add x3, x3, #0         // y actual	
+	mov x4, #20        // ancho
+	mov x5, #5         // alto
+	movz x6, 0xFF, lsl 16
+	movk x6, 0xFFFF, lsl 0
+	bl draw_rectangle
 
 // Parte inferior
-mov x2, #140         // x actual
-mov x3, #40        // y actual
-mov x4, #20        // ancho
-mov x5, #5         // alto
-bl draw_rectangle
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #140         // x actual
+    add x3, x3, #40         // y actual
+	mov x4, #20        // ancho
+	mov x5, #5         // alto
+	bl draw_rectangle
 
 // Lateral izquierdo
-mov x2, #135         // x actual
-mov x3, #0         // y actual
-mov x4, #5         // ancho
-mov x5, #45        // alto
-bl draw_rectangle
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #135         // x actual
+    add x3, x3, #0         // y actual
+	mov x4, #5         // ancho
+	mov x5, #45        // alto
+	bl draw_rectangle
 
 // Lateral derecho
-mov x2, #160        // x actual
-mov x3, #0         // y actual
-mov x4, #5         // ancho
-mov x5, #45        // alto
-bl draw_rectangle
-
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #160         // x actual
+    add x3, x3, #0         // y actual
+	mov x4, #5         // ancho
+	mov x5, #45        // alto
+	bl draw_rectangle
 
 //------------------ Numero 2 ---------------------------------------
-// Parte superior 
-mov x2, #175         // x actual
-mov x3, #0           // y
-mov x4, #25          // ancho
-mov x5, #5           // alto
-movz x6, 0xFF, lsl 16
-movk x6, 0xFFFF, lsl 0
-bl draw_rectangle
+mov x2, #260
+mov x3, #140
+
+draw_5:
+	mov x27, x2
+	mov x28, x3
+// Parte superior
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #175         // x actual
+    add x3, x3, #0         // y actual	
+	mov x4, #25          // ancho
+	mov x5, #5           // alto
+	movz x6, 0xFF, lsl 16
+	movk x6, 0xFFFF, lsl 0
+	bl draw_rectangle
 
 // Lateral derecho arriba
-mov x2, #195         
-mov x3, #5
-mov x4, #5
-mov x5, #15
-bl draw_rectangle
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #195         // x actual
+    add x3, x3, #5         // y actual	
+	mov x4, #5
+	mov x5, #15
+	bl draw_rectangle
 
 // Barra horizontal media
-mov x2, #175         
-mov x3, #20
-mov x4, #20
-mov x5, #5
-bl draw_rectangle
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #175         // x actual
+    add x3, x3, #20         // y actual	
+	mov x4, #20
+	mov x5, #5
+	bl draw_rectangle
 
 // Lateral izquierdo abajo
-mov x2, #170         
-mov x3, #25
-mov x4, #5
-mov x5, #15
-bl draw_rectangle
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #170         // x actual
+    add x3, x3, #25         // y actual	
+	mov x4, #5
+	mov x5, #15
+	bl draw_rectangle
 
 // Parte inferior
-mov x2, #170         
-mov x3, #40
-mov x4, #30
-mov x5, #5
-bl draw_rectangle
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #170         // x actual
+    add x3, x3, #40         // y actual	
+	mov x4, #30
+	mov x5, #5
+	bl draw_rectangle
 //------------------ Numero 5 ---------------------------------------
-// Parte superior 
-mov x2, #205         // x actual 
-mov x3, #0           // y
-mov x4, #25          // ancho
-mov x5, #5           // alto
+mov x2, #260
+mov x3, #140
+
+draw_6:
+	mov x27, x2
+	mov x28, x3
+// Parte superior
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #205         // x actual
+    add x3, x3, #0         // y actual	
+	mov x4, #25          // ancho
+	mov x5, #5           // alto
+	movz x6, 0xFF, lsl 16
+	movk x6, 0xFFFF, lsl 0
+	bl draw_rectangle
+
+// Lateral izquierdo arriba
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #205         // x actual
+    add x3, x3, #5         // y actual	
+	mov x4, #5
+	mov x5, #10
+	bl draw_rectangle
+
+// Barra horizontal media
+	mov x2, #205
+	mov x3, #15
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #205         // x actual
+    add x3, x3, #15         // y actual	
+	mov x4, #20
+	mov x5, #5
+	bl draw_rectangle
+
+// Lateral derecho abajo
+	mov x2, #225         
+	mov x3, #20
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #225         // x actual
+    add x3, x3, #20         // y actual	
+	mov x4, #5
+	mov x5, #20
+	bl draw_rectangle
+
+// Parte inferior
+	mov x2, #205         
+	mov x3, #40
+	mov x2, x27 
+	mov x3, x28
+	add x2, x2, #205         // x actual
+    add x3, x3, #40         // y actual	
+	mov x4, #20
+	mov x5, #5
+	bl draw_rectangle
+// ----------------- Letra M en blanco -----------------
+// Columna izquierda
+mov x2, #520      // x
+mov x3, #165      // y
+mov x4, #5        // ancho
+mov x5, #20       // alto
 movz x6, 0xFF, lsl 16
 movk x6, 0xFFFF, lsl 0
 bl draw_rectangle
 
-// Lateral izquierdo arriba
-mov x2, #205   
-mov x3, #5
-mov x4, #5
-mov x5, #10
-bl draw_rectangle
-
-// Barra horizontal media
-mov x2, #205
-mov x3, #15
-mov x4, #20
-mov x5, #5
-bl draw_rectangle
-
-// Lateral derecho abajo
-mov x2, #225         
-mov x3, #20
+// Columna central
+mov x2, #510      // x (separado un poco de la izquierda)
+mov x3, #165
 mov x4, #5
 mov x5, #20
 bl draw_rectangle
 
-// Parte inferior
-mov x2, #205         
-mov x3, #40
-mov x4, #20
-mov x5, #5
+// Columna derecha
+mov x2, #500      // x (separado igual)
+mov x3, #165
+mov x4, #5
+mov x5, #20
+bl draw_rectangle
+
+// Rectángulo superior 
+mov x2, #500      // x empieza igual que columna izquierda
+mov x3, #160      // y arriba, mismo que columnas
+mov x4, #20       // ancho que cubre las 3 columnas y los espacios (aprox)
+mov x5, #5        // alto pequeño (grosor de la barra superior)
 bl draw_rectangle
 // ---------------------- draw_rectangle ----------------------------
 draw_rectangle:
@@ -552,94 +813,6 @@ next_row:
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
-	// Ejemplo de uso de gpios
-	mov x9, GPIO_BASE
-
-	// --------------------------------------------------------------
-	//----------------------CACTUS-----------------------------------
-	// --------------------------------------------------------------
-	
-	// ----------------- Cactus izquierdo -----------------
-
-movz x10, 0x22, lsl 16
-movk x10, 0x8B22, lsl 0       // Verde oscuro
-
-mov x0, x20                  // framebuffer base
-mov x1, SCREEN_WIDTH
-mov x2, SCREEN_HEIGH
-
-mov x3, 280                  // y inicial
-mov x4, 40                   // alto cactus
-mov x5, 10                   // ancho cactus
-mov x6, 50                  // x inicial (izquierda)
-
-cactus_loop_y_izq:
-    mov x7, 0                // fila local
-
-cactus_fill_y_izq:
-    add x8, x3, x7
-    cmp x8, x2
-    b.ge cactus_done_izq
-
-    mul x9, x8, x1
-    add x9, x9, x6
-    lsl x9, x9, 2
-    add x11, x20, x9
-
-    mov x12, 0
-cactus_fill_x_izq:
-    cmp x12, x5
-    b.ge next_cactus_row_izq
-    stur w10, [x11]
-    add x11, x11, 4
-    add x12, x12, 1
-    b cactus_fill_x_izq
-
-next_cactus_row_izq:
-    add x7, x7, 1
-    cmp x7, x4
-    b.lt cactus_fill_y_izq
-
-cactus_done_izq:
-
-// ----------------- Cactus derecho -----------------
-
-mov x3, 380          // y
-mov x6, 580          // x derecha (a la derecha del camino)
-
-cactus_loop_y_der:
-    mov x7, 0
-
-cactus_fill_y_der:
-    add x8, x3, x7
-    cmp x8, x2
-    b.ge cactus_done_der
-
-    mul x9, x8, x1
-    add x9, x9, x6
-    lsl x9, x9, 2
-    add x11, x20, x9
-
-    mov x12, 0
-cactus_fill_x_der:
-    cmp x12, x5
-    b.ge next_cactus_row_der
-    stur w10, [x11]
-    add x11, x11, 4
-    add x12, x12, 1
-    b cactus_fill_x_der
-
-next_cactus_row_der:
-    add x7, x7, 1
-    cmp x7, x4
-    b.lt cactus_fill_y_der
-
-cactus_done_der:
-
-
-
-
-	// -------------------------------------------------------------------
 	// ----------------- Ejemplo de uso de GPIO --------------------------
 	// Atención: se utilizan registros w porque la documentación de broadcom
 	//           indica que los registros que estamos leyendo y escribiendo son de 32 bits
